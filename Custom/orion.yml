@@ -1,0 +1,50 @@
+---
+id: orion
+name: orion
+description: "Orion Indexer"
+language: en-US
+type: public
+encoding: UTF-8
+followredirect: false
+testlinktorrent: false
+requestDelay: 20
+links:
+  - https://api.orionoid.com
+
+caps:
+  categories:
+    Movies: Movies
+    TV: TV
+
+  modes:
+    search: [q]
+    movie-search: [q, imdbid]
+    tv-search: [q, imdbid, season, ep]
+  allowrawsearch: false
+
+settings:
+  - name: orion_label
+    type: info
+    label: Orion API Key https://panel.orionoid.com
+  - name: orion_api
+    type: text
+    label: Orion API Key
+    default: "Enter your personal API key here"
+
+
+search:
+  headers:
+    User-Agent: ["Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0"]
+  paths:
+    - path: "{{ if .Query.IMDBID }}?keyapp=TESTTESTTESTTESTTESTTESTTESTTEST&keyuser={{ .Config.orion_api }}&videoquality=hd720_hd4k&mode=stream&action=retrieve&type=movie&access=realdebridt&limitcount=25&idimdb={{ .Query.IMDBID }}{{ else }}?keyapp=TESTTESTTESTTESTTESTTESTTESTTEST&keyuser={{ .Config.orion_api }}&videoquality=hd720_hd4k&mode=stream&action=retrieve&type=movie&access=realdebridt&limitcount=25&tt0137523{{ end }}"
+      method: get
+      response:
+        type: json
+        noResultsMessage: '"data": []'
+      categories: [Movies]
+    - path: "{{ if and (.Query.IMDBIDShort) (.Query.Ep) }}{{ if .Query.IMDBIDShort }}?keyapp=TESTTESTTESTTESTTESTTESTTESTTEST&keyuser={{ .Config.orion_api }}&mode=stream&action=retrieve&type=show&access=realdebridt&limitcount=25&idimdb=tt{{ .Query.IMDBIDShort }}{{ if .Query.Season }}&numberseason={{ .Query.Season }}{{ else }}&numberseason=1{{ end }}{{ if .Query.Ep }}&numberepisode={{ .Query.Ep }}{{ end }}.json{{ else }}{{ if .Query.IMDBIDShort }}?keyapp=TESTTESTTESTTESTTESTTESTTESTTEST&keyuser={{ .Config.orion_api }}&mode=stream&action=retrieve&type=show&access=realdebridt&limitcount=25&idimdb=tt{{ .Query.IMDBIDShort }}{{ if .Query.Season }}&numberseason={{ .Query.Season }}{{ else }}&numberseason=1{{ end }}{{ end }}"
+      method: get
+      response:
+        type: json
+        noResultsMessage: '"data": []'
+      categories: [TV]
